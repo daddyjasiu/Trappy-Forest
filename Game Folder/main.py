@@ -2,7 +2,7 @@ import pygame
 import sys
 
 ############################################################
-#GAME INIT:
+# GAME INIT:
 ############################################################
 pygame.init()
 width = 400
@@ -10,7 +10,7 @@ height = 600
 screen = pygame.display.set_mode((width, height))
 
 ############################################################
-#GAME MAIN LOOP:
+# GAME MAIN LOOP:
 ############################################################
 while True:
     for event in pygame.event.get():

@@ -17,7 +17,6 @@ def drawMenu():
 
 def drawFirstLevel():
     screen.fill((255, 255, 255))
-    # test
 
 ############################################################
 # GAME INIT:

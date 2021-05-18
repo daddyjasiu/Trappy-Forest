@@ -13,10 +13,11 @@ def drawMenu():
 
     screen.blit(background, (0, 0))
     screen.blit(welcomeSign, (65, 100))
-    screen.blit(returnSign, (180, 400))
+    screen.blit(returnSign, (200, 400))
 
 def drawFirstLevel():
     screen.fill((255, 255, 255))
+    # test
 
 ############################################################
 # GAME INIT:

@@ -12,8 +12,8 @@ class MODEL_PLAYER:
         self.velocityY = -5
         self.playerSpriteIdle1 = pygame.image.load('assets/heroes/3 Dude_Monster/idle/1.png').convert_alpha()
         self.playerSpriteIdle1 = pygame.transform.scale(self.playerSpriteIdle1, (45, 69)).convert_alpha()
-        self.playerSpriteIdle1Rect = self.playerSpriteIdle1.get_rect()
-
+        self.playerRect = self.playerSpriteIdle1.get_rect()
+        self.playerRect.topleft = (70, 300)
 ############################################################
 # VIEW-MODEL
 ############################################################
@@ -37,6 +37,7 @@ class VIEW_MODEL_PLAYER:
 
         if keys[pygame.K_a] and self.player.vectX > 0:
             self.player.vectX -= 5
+            self.player.playerRect.x -= 5
 
             if(turnedLeft == False):
                 self.player.playerSpriteIdle1 = pygame.transform.flip(self.player.playerSpriteIdle1, True, False)
@@ -44,22 +45,25 @@ class VIEW_MODEL_PLAYER:
 
         if keys[pygame.K_d] and self.player.vectX < 1400 - 45:
                     self.player.vectX += 5
+                    self.player.playerRect.x += 5
                     if (turnedLeft == True):
                             self.player.playerSpriteIdle1 = pygame.transform.flip(self.player.playerSpriteIdle1, True, False)
                             game.turnedLeft = False
 
 
-        if (didJump == True):
+        if (didJump == True ):
             self.player.vectY -= self.player.velocityY
+            self.player.playerRect.y -= self.player.velocityY
             self.player.velocityY -= 1
-            if (self.player.velocityY < -25):
+            if (self.player.velocityY < -25  or self.player.playerRect.colliderect(game.platformRightRect)):
                 game.didJump = False
                 self.player.velocityY = 25
-        if(didJump == False and self.player.vectY < 720-130):
+        if(didJump == False and self.player.vectY < 720-130 and not self.player.playerRect.colliderect(game.platformRightRect)):
                 if(self.player.velocityY > -25):
                     self.player.velocityY -= 1
                 self.player.vectY -= self.player.velocityY
-                if(self.player.vectY >= 720-130):
+                self.player.playerRect.y -= self.player.velocityY
+                if(self.player.vectY >= 720-130 and  self.player.playerRect.colliderect(game.platformRightRect)):
                     self.player.velocityY = 25
 
 
@@ -107,16 +111,33 @@ class GAME:
 
     bridgeLeft = pygame.image.load('assets/enviroment/bridge_left.png').convert_alpha()
     bridgeLeft = pygame.transform.scale(bridgeLeft, (140, 154)).convert_alpha()
+    bridgeLeftRect = bridgeLeft.get_rect()
+    bridgeLeftRect.topleft = (0, 50)
+
     bridgeRight = pygame.image.load('assets/enviroment/bridge_right.png').convert_alpha()
     bridgeRight = pygame.transform.scale(bridgeRight, (140, 154)).convert_alpha()
-    bridgeMidTriple = pygame.image.load('assets/enviroment/bridge_mid_platform_triple.png').convert_alpha()
-    bridgeMidTriple = pygame.transform.scale(bridgeMidTriple, (315, 42)).convert_alpha()
-    bridgeMid = pygame.image.load('assets/enviroment/bridge_mid_platform.png').convert_alpha()
-    bridgeMid = pygame.transform.scale(bridgeMid, (105, 42)).convert_alpha()
+    bridgeRightRect = bridgeRight.get_rect()
+    bridgeRightRect.topleft = (1265, 340)
+
+    platformMid = pygame.image.load('assets/enviroment/bridge_mid_platform_triple.png').convert_alpha()
+    platformMid = pygame.transform.scale(platformMid, (315, 42)).convert_alpha()
+    platformMidRect = platformMid.get_rect()
+    platformMidRect.topleft = (600, 300)
+    platformLeftRect = platformMid.get_rect()
+    platformLeftRect.topleft = (140, 141)
+
+    platformRight = pygame.image.load('assets/enviroment/bridge_mid_platform.png').convert_alpha()
+    platformRight = pygame.transform.scale(platformRight, (105, 42)).convert_alpha()
+    platformRightRect = platformRight.get_rect()
+    platformRightRect.topleft = (1167, 431)
+    
 
     spikes = pygame.image.load('assets/enviroment/spikes.png').convert_alpha()
     spikes = pygame.transform.scale(spikes, (100, 96)).convert_alpha()
+    
     spikesRect = spikes.get_rect()
+    spikesRect.topleft = (450, 580)
+
 
     def drawMenu(self):
         self.screen.blit(self.menuBackground, (0, 0))
@@ -136,12 +157,14 @@ class GAME:
         self.screen.blit(self.bitcoin, (1235, 355))
 
         self.screen.blit(self.bridgeLeft, (0, 50))
-        self.screen.blit(self.bridgeMidTriple, (140, 141))
+        self.screen.blit(self.platformMid, (140, 141))
         self.screen.blit(self.bridgeRight, (1265, 340))
-        self.screen.blit(self.bridgeMid, (1167, 431))
-        self.screen.blit(self.bridgeMidTriple, (600, 300))
+        self.screen.blit(self.platformRight, (1167, 431))
+        self.screen.blit(self.platformMid, (600, 300))
 
         self.screen.blit(self.spikes, (450, 580))
+
+
 
 
     ############################################################
@@ -172,6 +195,8 @@ class GAME:
                 self.firstLevel = True
                 self.viewPlayer.drawPlayer(self.screen)
                 self.viewModelPlayer.playerMovement(self.didJump, self.turnedLeft, self.firstLevel)
+                if self.player.playerRect.colliderect(self.spikesRect) or self.player.playerRect.colliderect(self.platformMidRect) or self.player.playerRect.colliderect(self.platformRightRect) or self.player.playerRect.colliderect(self.bridgeRightRect) or self.player.playerRect.colliderect(self.bridgeLeftRect):
+                    print("asdasdasd")
 
             pygame.display.update()
 

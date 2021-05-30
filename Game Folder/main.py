@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import sys
 
@@ -55,16 +57,16 @@ class VIEW_MODEL_PLAYER:
             self.player.vectY -= self.player.velocityY
             self.player.playerRect.y -= self.player.velocityY
             self.player.velocityY -= 1
-            if (self.player.velocityY < -25  or self.player.playerRect.colliderect(game.platformRightRect)):
+            if (self.player.velocityY < -25):
                 game.didJump = False
                 self.player.velocityY = 25
-        if(didJump == False and self.player.vectY < 720-130 and not self.player.playerRect.colliderect(game.platformRightRect)):
-                if(self.player.velocityY > -25):
-                    self.player.velocityY -= 1
-                self.player.vectY -= self.player.velocityY
-                self.player.playerRect.y -= self.player.velocityY
-                if(self.player.vectY >= 720-130 and  self.player.playerRect.colliderect(game.platformRightRect)):
-                    self.player.velocityY = 25
+        if(didJump == False and self.player.vectY < 720-130):
+            if(self.player.velocityY > -25):
+                self.player.velocityY -= 1
+            self.player.vectY -= self.player.velocityY
+            self.player.playerRect.y -= self.player.velocityY
+            if(self.player.vectY >= 720-130):
+                self.player.velocityY = 25
 
 
 ############################################################
@@ -93,15 +95,23 @@ class GAME:
 
     # GAME VARIABLES:
     gameActive = False
+    didLose = False
     didJump = False
     turnedLeft = False
     firstLevel = False
 
     # IMPORTING ASSETS:
     menuBackground = pygame.image.load('assets/menu/menuBG.jpg').convert()
-    menuBackground = pygame.transform.scale(menuBackground, (1400, 720))
+    menuBackground = pygame.transform.scale(menuBackground, (1400, 720)).convert()
     menuWelcome = pygame.image.load('assets/menu/welcome.png').convert()
+    menuWelcome = pygame.transform.scale(menuWelcome, (1300, 133)).convert()
     menuPressReturn = pygame.image.load('assets/menu/press_return.png').convert()
+    menuPressReturn = pygame.transform.scale(menuPressReturn, (1100, 130)).convert()
+
+    menuDied = pygame.image.load('assets/menu/you_died.png').convert()
+    menuDied = pygame.transform.scale(menuDied, (1000, 156)).convert()
+    menuPressReturnDied = pygame.image.load('assets/menu/restart_return.png').convert()
+    menuPressReturnDied = pygame.transform.scale(menuPressReturnDied, (1100, 119)).convert()
 
     skyBackground = pygame.image.load('assets/enviroment/sky_backgroud.png').convert()
     level1Background = pygame.image.load('assets/enviroment/level1_background.png').convert()
@@ -136,13 +146,18 @@ class GAME:
     spikes = pygame.transform.scale(spikes, (100, 96)).convert_alpha()
     
     spikesRect = spikes.get_rect()
-    spikesRect.topleft = (450, 580)
+    spikesRect.topleft = (450, 620)
 
 
     def drawMenu(self):
         self.screen.blit(self.menuBackground, (0, 0))
-        self.screen.blit(self.menuWelcome, (65, 100))
-        self.screen.blit(self.menuPressReturn, (200, 400))
+        self.screen.blit(self.menuWelcome, (50, 100))
+        self.screen.blit(self.menuPressReturn, (150, 360))
+
+    def drawPlayerLost(self):
+        self.screen.blit(self.menuBackground, (0, 0))
+        self.screen.blit(self.menuDied, (65, 100))
+        self.screen.blit(self.menuPressReturnDied, (200, 400))
 
     def initPlayerAndAscreen(self):
         self.player = MODEL_PLAYER()
@@ -165,8 +180,6 @@ class GAME:
         self.screen.blit(self.spikes, (450, 580))
 
 
-
-
     ############################################################
     # GAME MAIN LOOP:
     ############################################################
@@ -180,6 +193,8 @@ class GAME:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN and not self.gameActive:
                         self.gameActive = True
+                        self.didLose = False
+                        self.turnedLeft = False
                         self.initPlayerAndAscreen()
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
@@ -189,14 +204,20 @@ class GAME:
                             self.didJump = True
 
             if not self.gameActive:
-                self.drawMenu()
+                if not self.didLose:
+                    self.drawMenu()
+                elif self.didLose:
+                    self.drawPlayerLost()
             if self.gameActive:
                 self.drawFirstLevel()
                 self.firstLevel = True
                 self.viewPlayer.drawPlayer(self.screen)
                 self.viewModelPlayer.playerMovement(self.didJump, self.turnedLeft, self.firstLevel)
-                if self.player.playerRect.colliderect(self.spikesRect) or self.player.playerRect.colliderect(self.platformMidRect) or self.player.playerRect.colliderect(self.platformRightRect) or self.player.playerRect.colliderect(self.bridgeRightRect) or self.player.playerRect.colliderect(self.bridgeLeftRect):
-                    print("asdasdasd")
+                if self.player.playerRect.colliderect(self.spikesRect):
+                    print("!COLLISION!")
+                    self.gameActive = False
+                    self.didLose = True
+
 
             pygame.display.update()
 

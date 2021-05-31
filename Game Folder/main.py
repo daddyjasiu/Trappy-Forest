@@ -94,7 +94,7 @@ class GAME:
     clock = pygame.time.Clock()
     mixer.init()
     mixer.music.load('assets/music/soundtrack/soundtrack_op.wav')
-    mixer.music.play(-1)
+    mixer.music.play()
 
     # GAME VARIABLES:
     gameActive = False
@@ -192,10 +192,21 @@ class GAME:
         self.spikesLongDownRect3.topleft = (970, -30)
 
     def setBouldersLevel2Rects(self):
-        
+        self.boulderRect1.topleft = (300, -180)
+        self.boulderRect2.topleft = (700, -180)
+        self.boulderRect3.topleft = (1100, -180)
+
+    def bouldersFall(self):
+        self.boulderRect1.y += 5
+        self.boulderRect2.y += 5
+        self.boulderRect3.y += 5
+
+        if self.boulderRect1.y > 720+180:
+            self.setBouldersLevel2Rects()
+
+
 
     def drawFirstLevel(self, isFirstCoinCollected, isSecondCoinCollected, isThirdCoinCollected):
-
         self.setSpikesLevel1Rects()
 
         self.screen.blit(self.level1Background, (0, 0))
@@ -225,18 +236,21 @@ class GAME:
         self.screen.blit(self.level1Background, (0, 0))
 
         if not isThirdCoinCollected:
-            self.screen.blit(self.bitcoin, (995, 330))
-            self.bitcoinRect3.topleft = (995, 330)
+            self.screen.blit(self.bitcoin, (1100+90, 330))
+            self.bitcoinRect3.topleft = (1100+90, 330)
 
         if isThirdCoinCollected and not isFirstCoinCollected:
-            self.screen.blit(self.bitcoin, (375, 330))
-            self.bitcoinRect1.topleft = (375, 330)
+            self.screen.blit(self.bitcoin, (300+90, 330))
+            self.bitcoinRect1.topleft = (300+90, 330)
 
         if isFirstCoinCollected and not isSecondCoinCollected:
-            self.screen.blit(self.bitcoin, (695, 330))
-            self.bitcoinRect2.topleft = (695, 330)
+            self.screen.blit(self.bitcoin, (700+90, 330))
+            self.bitcoinRect2.topleft = (700+90, 330)
 
-        self.screen.blit(self.boulder, (100, 100))
+        self.screen.blit(self.boulder, (300, self.boulderRect1.y))
+        self.screen.blit(self.boulder, (700, self.boulderRect2.y))
+        self.screen.blit(self.boulder, (1100, self.boulderRect3.y))
+
 
     ############################################################
     # GAME MAIN LOOP:
@@ -257,6 +271,7 @@ class GAME:
                         self.turnedLeft = False
                         self.initPlayerAndAscreen()
                         self.secondLevel = True
+                        self.setBouldersLevel2Rects()
 
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
@@ -311,6 +326,9 @@ class GAME:
                     if self.isFirstCoinCollected and self.isSecondCoinCollected and self.isThirdCoinCollected:
                         self.firstLevel = False
                         self.secondLevel = True
+                        self.isFirstCoinCollected = False
+                        self.isSecondCoinCollected = False
+                        self.isThirdCoinCollected = False
                         self.resetCoinRects()
                         self.resetSpikesRects()
 
@@ -318,23 +336,21 @@ class GAME:
                 if self.secondLevel:
                     self.drawSecondLevel(self.isFirstCoinCollected, self.isSecondCoinCollected,
                                         self.isThirdCoinCollected)
-
+                    self.bouldersFall()
                     self.viewPlayer.drawPlayer(self.screen)
                     self.viewModelPlayer.playerMovement(self.didJump, self.turnedLeft)
 
-                    # if self.player.playerRect.colliderect(self.spikesLongDownRect1) \
-                    #         or self.player.playerRect.colliderect(self.spikesLongUpRect1) \
-                    #         or self.player.playerRect.colliderect(self.spikesLongUpRect2) \
-                    #         or self.player.playerRect.colliderect(self.spikesLongDownRect2) \
-                    #         or self.player.playerRect.colliderect(self.spikesLongUpRect3) \
-                    #         or self.player.playerRect.colliderect(self.spikesLongDownRect3):
-                    #     self.deathSound.play()
-                    #     self.gameActive = False
-                    #     self.didLose = True
-                    #     self.isFirstCoinCollected = False
-                    #     self.isSecondCoinCollected = False
-                    #     self.isThirdCoinCollected = False
-                    #     self.resetCoinRects()
+                    if self.player.playerRect.colliderect(self.boulderRect1) \
+                             or self.player.playerRect.colliderect(self.boulderRect2) \
+                             or self.player.playerRect.colliderect(self.boulderRect3):
+                         self.deathSound.play()
+                         self.gameActive = False
+                         self.didLose = True
+                         self.isFirstCoinCollected = False
+                         self.isSecondCoinCollected = False
+                         self.isThirdCoinCollected = False
+                         self.resetCoinRects()
+                         self.setBouldersLevel2Rects()
 
                     if self.player.playerRect.colliderect(self.bitcoinRect1):
                         self.isFirstCoinCollected = True

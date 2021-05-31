@@ -1,7 +1,7 @@
 import time
-
 import pygame
 import sys
+from pygame import mixer
 
 ############################################################
 # MODEL/DAO
@@ -33,7 +33,7 @@ class VIEW_MODEL_PLAYER:
     def getPlayerY(self):
         return self.player.vectY
 
-    def playerMovement(self, didJump, turnedLeft, firstLevel):
+    def playerMovement(self, didJump, turnedLeft):
 
         keys = pygame.key.get_pressed()
 
@@ -92,6 +92,9 @@ class GAME:
     height = 720
     screen = pygame.display.set_mode((width, height))
     clock = pygame.time.Clock()
+    mixer.init()
+    mixer.music.load('assets/music/soundtrack/soundtrack_op.wav')
+    mixer.music.play(-1)
 
     # GAME VARIABLES:
     gameActive = False
@@ -99,8 +102,16 @@ class GAME:
     didJump = False
     turnedLeft = False
     firstLevel = False
+    secondLevel = False
+    isFirstCoinCollected = False
+    isSecondCoinCollected = False
+    isThirdCoinCollected = False
 
     # IMPORTING ASSETS:
+    jumpSound = mixer.Sound('assets/music/sounds/jump.wav')
+    coinSound = mixer.Sound('assets/music/sounds/coin.wav')
+    deathSound = mixer.Sound('assets/music/sounds/death.wav')
+
     menuBackground = pygame.image.load('assets/menu/menuBG.jpg').convert()
     menuBackground = pygame.transform.scale(menuBackground, (1400, 720)).convert()
     menuWelcome = pygame.image.load('assets/menu/welcome.png').convert()
@@ -119,34 +130,31 @@ class GAME:
     bitcoin = pygame.image.load('assets/enviroment/bitcoin.png').convert_alpha()
     bitcoin = pygame.transform.scale(bitcoin, (45, 69)).convert_alpha()
 
-    bridgeLeft = pygame.image.load('assets/enviroment/bridge_left.png').convert_alpha()
-    bridgeLeft = pygame.transform.scale(bridgeLeft, (140, 154)).convert_alpha()
-    bridgeLeftRect = bridgeLeft.get_rect()
-    bridgeLeftRect.topleft = (0, 50)
+    bitcoinRect1 = bitcoin.get_rect()
+    bitcoinRect2 = bitcoin.get_rect()
+    bitcoinRect3 = bitcoin.get_rect()
 
-    bridgeRight = pygame.image.load('assets/enviroment/bridge_right.png').convert_alpha()
-    bridgeRight = pygame.transform.scale(bridgeRight, (140, 154)).convert_alpha()
-    bridgeRightRect = bridgeRight.get_rect()
-    bridgeRightRect.topleft = (1265, 340)
 
-    platformMid = pygame.image.load('assets/enviroment/bridge_mid_platform_triple.png').convert_alpha()
-    platformMid = pygame.transform.scale(platformMid, (315, 42)).convert_alpha()
-    platformMidRect = platformMid.get_rect()
-    platformMidRect.topleft = (600, 300)
-    platformLeftRect = platformMid.get_rect()
-    platformLeftRect.topleft = (140, 141)
+    spikesSmallUp = pygame.image.load('assets/enviroment/spikes.png').convert_alpha()
+    spikesSmallUp = pygame.transform.scale(spikesSmallUp, (100, 96)).convert_alpha()
+    spikesLongDown = pygame.image.load('assets/enviroment/spikes_long.png').convert_alpha()
+    spikesLongDown = pygame.transform.scale(spikesLongDown, (100, 311)).convert_alpha()
+    spikesLongDown = pygame.transform.flip(spikesLongDown, False, True)
+    spikesLongUp = pygame.image.load('assets/enviroment/spikes_long.png').convert_alpha()
+    spikesLongUp = pygame.transform.scale(spikesLongUp, (100, 311)).convert_alpha()
 
-    platformRight = pygame.image.load('assets/enviroment/bridge_mid_platform.png').convert_alpha()
-    platformRight = pygame.transform.scale(platformRight, (105, 42)).convert_alpha()
-    platformRightRect = platformRight.get_rect()
-    platformRightRect.topleft = (1167, 431)
-    
-
-    spikes = pygame.image.load('assets/enviroment/spikes.png').convert_alpha()
-    spikes = pygame.transform.scale(spikes, (100, 96)).convert_alpha()
-    
-    spikesRect = spikes.get_rect()
-    spikesRect.topleft = (450, 620)
+    spikesLongUpRect1 = spikesLongUp.get_rect()
+    spikesLongUpRect1.topleft = (350, 610)
+    spikesLongDownRect1 = spikesLongDown.get_rect()
+    spikesLongDownRect1.topleft = (350, -30)
+    spikesLongUpRect2 = spikesLongUp.get_rect()
+    spikesLongUpRect2.topleft = (670, 480)
+    spikesLongDownRect2 = spikesLongDown.get_rect()
+    spikesLongDownRect2.topleft = (670, -30)
+    spikesLongUpRect3 = spikesLongUp.get_rect()
+    spikesLongUpRect3.topleft = (970, 500)
+    spikesLongDownRect3 = spikesLongDown.get_rect()
+    spikesLongDownRect3.topleft = (970, -30)
 
 
     def drawMenu(self):
@@ -164,26 +172,65 @@ class GAME:
         self.viewModelPlayer = VIEW_MODEL_PLAYER(self.player)
         self.viewPlayer = VIEW_PLAYER(self.viewModelPlayer)
 
-    def drawFirstLevel(self):
+    def resetCoinRects(self):
+        self.bitcoinRect1.topleft = (0, 0)
+        self.bitcoinRect2.topleft = (0, 0)
+        self.bitcoinRect3.topleft = (0, 0)
+
+    def drawFirstLevel(self, isFirstCoinCollected, isSecondCoinCollected, isThirdCoinCollected):
         self.screen.blit(self.level1Background, (0, 0))
 
-        self.screen.blit(self.bitcoin, (240, 65))
-        self.screen.blit(self.bitcoin, (732, 220))
-        self.screen.blit(self.bitcoin, (1235, 355))
+        if not isThirdCoinCollected:
+            self.screen.blit(self.bitcoin, (995, 330))
+            self.bitcoinRect3.topleft = (995, 330)
 
-        self.screen.blit(self.bridgeLeft, (0, 50))
-        self.screen.blit(self.platformMid, (140, 141))
-        self.screen.blit(self.bridgeRight, (1265, 340))
-        self.screen.blit(self.platformRight, (1167, 431))
-        self.screen.blit(self.platformMid, (600, 300))
+        if isThirdCoinCollected and not isFirstCoinCollected:
+            self.screen.blit(self.bitcoin, (375, 330))
+            self.bitcoinRect1.topleft = (375, 330)
 
-        self.screen.blit(self.spikes, (450, 580))
+        if isFirstCoinCollected and not isSecondCoinCollected:
+            self.screen.blit(self.bitcoin, (695, 330))
+            self.bitcoinRect2.topleft = (695, 330)
 
+        self.screen.blit(self.spikesLongUp, (350, 580))
+        self.screen.blit(self.spikesLongDown, (350, -30))
+
+        self.screen.blit(self.spikesLongUp, (670, 480))
+        self.screen.blit(self.spikesLongDown, (670, -30))
+
+        self.screen.blit(self.spikesLongUp, (970, 480))
+        self.screen.blit(self.spikesLongDown, (970, -20))
+
+    def drawSecondLevel(self, isFirstCoinCollected, isSecondCoinCollected, isThirdCoinCollected):
+        self.screen.blit(self.level1Background, (0, 0))
+
+        if not isThirdCoinCollected:
+            self.screen.blit(self.bitcoin, (995, 330))
+            self.bitcoinRect3.topleft = (995, 330)
+
+        if isThirdCoinCollected and not isFirstCoinCollected:
+            self.screen.blit(self.bitcoin, (375, 330))
+            self.bitcoinRect1.topleft = (375, 330)
+
+        if isFirstCoinCollected and not isSecondCoinCollected:
+            self.screen.blit(self.bitcoin, (695, 330))
+            self.bitcoinRect2.topleft = (695, 330)
+
+        self.screen.blit(self.spikesLongUp, (350, 580))
+        self.screen.blit(self.spikesLongDown, (350, -30))
+
+        self.screen.blit(self.spikesLongUp, (670, 480))
+        self.screen.blit(self.spikesLongDown, (670, -30))
+
+        self.screen.blit(self.spikesLongUp, (970, 480))
+        self.screen.blit(self.spikesLongDown, (970, -20))
 
     ############################################################
     # GAME MAIN LOOP:
     ############################################################
+
     def playGame(self):
+
         while True:
             self.clock.tick(120)
             for event in pygame.event.get():
@@ -196,11 +243,13 @@ class GAME:
                         self.didLose = False
                         self.turnedLeft = False
                         self.initPlayerAndAscreen()
+                        self.firstLevel = True
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
                         sys.exit()
                     if event.key == pygame.K_SPACE and self.gameActive and self.didJump == False:
                         if self.player.vectY > 0:
+                            self.jumpSound.play()
                             self.didJump = True
 
             if not self.gameActive:
@@ -208,16 +257,87 @@ class GAME:
                     self.drawMenu()
                 elif self.didLose:
                     self.drawPlayerLost()
-            if self.gameActive:
-                self.drawFirstLevel()
-                self.firstLevel = True
-                self.viewPlayer.drawPlayer(self.screen)
-                self.viewModelPlayer.playerMovement(self.didJump, self.turnedLeft, self.firstLevel)
-                if self.player.playerRect.colliderect(self.spikesRect):
-                    print("!COLLISION!")
-                    self.gameActive = False
-                    self.didLose = True
 
+            # FIRST LEVEL
+            if self.gameActive:
+                if self.firstLevel:
+                    self.drawFirstLevel(self.isFirstCoinCollected, self.isSecondCoinCollected, self.isThirdCoinCollected)
+
+                    self.viewPlayer.drawPlayer(self.screen)
+                    self.viewModelPlayer.playerMovement(self.didJump, self.turnedLeft)
+                    if self.player.playerRect.colliderect(self.spikesLongDownRect1)\
+                            or self.player.playerRect.colliderect(self.spikesLongUpRect1)\
+                            or self.player.playerRect.colliderect(self.spikesLongUpRect2)\
+                            or self.player.playerRect.colliderect(self.spikesLongDownRect2)\
+                            or self.player.playerRect.colliderect(self.spikesLongUpRect3)\
+                            or self.player.playerRect.colliderect(self.spikesLongDownRect3):
+                        self.deathSound.play()
+                        self.gameActive = False
+                        self.didLose = True
+                        self.isFirstCoinCollected = False
+                        self.isSecondCoinCollected = False
+                        self.isThirdCoinCollected = False
+                        self.resetCoinRects()
+
+                    if self.player.playerRect.colliderect(self.bitcoinRect1):
+                        self.isFirstCoinCollected = True
+                        self.coinSound.play()
+                        self.bitcoinRect1.topleft = (0, 0)
+
+                    if self.player.playerRect.colliderect(self.bitcoinRect2):
+                        self.isSecondCoinCollected = True
+                        self.coinSound.play()
+                        self.bitcoinRect2.topleft = (0, 0)
+
+                    if self.player.playerRect.colliderect(self.bitcoinRect3):
+                        self.isThirdCoinCollected = True
+                        self.coinSound.play()
+                        self.bitcoinRect3.topleft = (0, 0)
+
+                    if self.isFirstCoinCollected and self.isSecondCoinCollected and self.isThirdCoinCollected:
+                        self.firstLevel = False
+                        self.secondLevel = True
+                        self.resetCoinRects()
+
+                # SECOND LEVEL
+                if self.secondLevel:
+                    self.drawSecondLevel(self.isFirstCoinCollected, self.isSecondCoinCollected,
+                                        self.isThirdCoinCollected)
+
+                    self.viewPlayer.drawPlayer(self.screen)
+                    self.viewModelPlayer.playerMovement(self.didJump, self.turnedLeft)
+
+                    if self.player.playerRect.colliderect(self.spikesLongDownRect1) \
+                            or self.player.playerRect.colliderect(self.spikesLongUpRect1) \
+                            or self.player.playerRect.colliderect(self.spikesLongUpRect2) \
+                            or self.player.playerRect.colliderect(self.spikesLongDownRect2) \
+                            or self.player.playerRect.colliderect(self.spikesLongUpRect3) \
+                            or self.player.playerRect.colliderect(self.spikesLongDownRect3):
+                        self.deathSound.play()
+                        self.gameActive = False
+                        self.didLose = True
+                        self.isFirstCoinCollected = False
+                        self.isSecondCoinCollected = False
+                        self.isThirdCoinCollected = False
+                        self.resetCoinRects()
+
+                    if self.player.playerRect.colliderect(self.bitcoinRect1):
+                        self.isFirstCoinCollected = True
+                        self.coinSound.play()
+                        self.bitcoinRect1.topleft = (0, 0)
+
+                    if self.player.playerRect.colliderect(self.bitcoinRect2):
+                        self.isSecondCoinCollected = True
+                        self.coinSound.play()
+                        self.bitcoinRect2.topleft = (0, 0)
+
+                    if self.player.playerRect.colliderect(self.bitcoinRect3):
+                        self.isThirdCoinCollected = True
+                        self.coinSound.play()
+                        self.bitcoinRect3.topleft = (0, 0)
+
+                    if self.isFirstCoinCollected and self.isSecondCoinCollected and self.isThirdCoinCollected:
+                        self.secondLevel = True
 
             pygame.display.update()
 

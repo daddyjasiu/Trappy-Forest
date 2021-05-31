@@ -134,7 +134,6 @@ class GAME:
     bitcoinRect2 = bitcoin.get_rect()
     bitcoinRect3 = bitcoin.get_rect()
 
-
     spikesSmallUp = pygame.image.load('assets/enviroment/spikes.png').convert_alpha()
     spikesSmallUp = pygame.transform.scale(spikesSmallUp, (100, 96)).convert_alpha()
     spikesLongDown = pygame.image.load('assets/enviroment/spikes_long.png').convert_alpha()
@@ -143,19 +142,8 @@ class GAME:
     spikesLongUp = pygame.image.load('assets/enviroment/spikes_long.png').convert_alpha()
     spikesLongUp = pygame.transform.scale(spikesLongUp, (100, 311)).convert_alpha()
 
-    spikesLongUpRect1 = spikesLongUp.get_rect()
-    spikesLongUpRect1.topleft = (350, 610)
-    spikesLongDownRect1 = spikesLongDown.get_rect()
-    spikesLongDownRect1.topleft = (350, -30)
-    spikesLongUpRect2 = spikesLongUp.get_rect()
-    spikesLongUpRect2.topleft = (670, 480)
-    spikesLongDownRect2 = spikesLongDown.get_rect()
-    spikesLongDownRect2.topleft = (670, -30)
-    spikesLongUpRect3 = spikesLongUp.get_rect()
-    spikesLongUpRect3.topleft = (970, 500)
-    spikesLongDownRect3 = spikesLongDown.get_rect()
-    spikesLongDownRect3.topleft = (970, -30)
 
+    boulder = pygame.image.load('assets/enviroment/boulder.png').convert_alpha()
 
     def drawMenu(self):
         self.screen.blit(self.menuBackground, (0, 0))
@@ -177,7 +165,32 @@ class GAME:
         self.bitcoinRect2.topleft = (0, 0)
         self.bitcoinRect3.topleft = (0, 0)
 
+    def resetSpikesRects(self):
+        self.spikesLongUpRect1.topleft = (0, 0)
+        self.spikesLongUpRect2.topleft = (0, 0)
+        self.spikesLongUpRect3.topleft = (0, 0)
+        self.spikesLongDownRect1.topleft = (0, 0)
+        self.spikesLongDownRect2.topleft = (0, 0)
+        self.spikesLongDownRect3.topleft = (0, 0)
+
+    def setSpikesLevel1Rects(self):
+        self.spikesLongUpRect1 = self.spikesLongUp.get_rect()
+        self.spikesLongUpRect1.topleft = (350, 610)
+        self.spikesLongDownRect1 = self.spikesLongDown.get_rect()
+        self.spikesLongDownRect1.topleft = (350, -30)
+        self.spikesLongUpRect2 = self.spikesLongUp.get_rect()
+        self.spikesLongUpRect2.topleft = (670, 480)
+        self.spikesLongDownRect2 = self.spikesLongDown.get_rect()
+        self.spikesLongDownRect2.topleft = (670, -30)
+        self.spikesLongUpRect3 = self.spikesLongUp.get_rect()
+        self.spikesLongUpRect3.topleft = (970, 520)
+        self.spikesLongDownRect3 = self.spikesLongDown.get_rect()
+        self.spikesLongDownRect3.topleft = (970, -30)
+
     def drawFirstLevel(self, isFirstCoinCollected, isSecondCoinCollected, isThirdCoinCollected):
+
+        self.setSpikesLevel1Rects()
+
         self.screen.blit(self.level1Background, (0, 0))
 
         if not isThirdCoinCollected:
@@ -198,7 +211,7 @@ class GAME:
         self.screen.blit(self.spikesLongUp, (670, 480))
         self.screen.blit(self.spikesLongDown, (670, -30))
 
-        self.screen.blit(self.spikesLongUp, (970, 480))
+        self.screen.blit(self.spikesLongUp, (970, 500))
         self.screen.blit(self.spikesLongDown, (970, -20))
 
     def drawSecondLevel(self, isFirstCoinCollected, isSecondCoinCollected, isThirdCoinCollected):
@@ -216,14 +229,15 @@ class GAME:
             self.screen.blit(self.bitcoin, (695, 330))
             self.bitcoinRect2.topleft = (695, 330)
 
-        self.screen.blit(self.spikesLongUp, (350, 580))
-        self.screen.blit(self.spikesLongDown, (350, -30))
-
-        self.screen.blit(self.spikesLongUp, (670, 480))
-        self.screen.blit(self.spikesLongDown, (670, -30))
-
-        self.screen.blit(self.spikesLongUp, (970, 480))
-        self.screen.blit(self.spikesLongDown, (970, -20))
+        # self.screen.blit(self.spikesLongUp, (350, 580))
+        # self.screen.blit(self.spikesLongDown, (350, -30))
+        #
+        # self.screen.blit(self.spikesLongUp, (670, 480))
+        # self.screen.blit(self.spikesLongDown, (670, -30))
+        #
+        # self.screen.blit(self.spikesLongUp, (970, 480))
+        # self.screen.blit(self.spikesLongDown, (970, -20))
+        self.screen.blit(self.boulder, (100, 100))
 
     ############################################################
     # GAME MAIN LOOP:
@@ -244,6 +258,7 @@ class GAME:
                         self.turnedLeft = False
                         self.initPlayerAndAscreen()
                         self.firstLevel = True
+
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
                         sys.exit()
@@ -298,6 +313,7 @@ class GAME:
                         self.firstLevel = False
                         self.secondLevel = True
                         self.resetCoinRects()
+                        self.resetSpikesRects()
 
                 # SECOND LEVEL
                 if self.secondLevel:

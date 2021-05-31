@@ -142,8 +142,12 @@ class GAME:
     spikesLongUp = pygame.image.load('assets/enviroment/spikes_long.png').convert_alpha()
     spikesLongUp = pygame.transform.scale(spikesLongUp, (100, 311)).convert_alpha()
 
-
     boulder = pygame.image.load('assets/enviroment/boulder.png').convert_alpha()
+    boulder = pygame.transform.scale(boulder, (180, 180))
+
+    boulderRect1 = boulder.get_rect()
+    boulderRect2 = boulder.get_rect()
+    boulderRect3 = boulder.get_rect()
 
     def drawMenu(self):
         self.screen.blit(self.menuBackground, (0, 0))
@@ -187,6 +191,9 @@ class GAME:
         self.spikesLongDownRect3 = self.spikesLongDown.get_rect()
         self.spikesLongDownRect3.topleft = (970, -30)
 
+    def setBouldersLevel2Rects(self):
+        
+
     def drawFirstLevel(self, isFirstCoinCollected, isSecondCoinCollected, isThirdCoinCollected):
 
         self.setSpikesLevel1Rects()
@@ -229,14 +236,6 @@ class GAME:
             self.screen.blit(self.bitcoin, (695, 330))
             self.bitcoinRect2.topleft = (695, 330)
 
-        # self.screen.blit(self.spikesLongUp, (350, 580))
-        # self.screen.blit(self.spikesLongDown, (350, -30))
-        #
-        # self.screen.blit(self.spikesLongUp, (670, 480))
-        # self.screen.blit(self.spikesLongDown, (670, -30))
-        #
-        # self.screen.blit(self.spikesLongUp, (970, 480))
-        # self.screen.blit(self.spikesLongDown, (970, -20))
         self.screen.blit(self.boulder, (100, 100))
 
     ############################################################
@@ -257,7 +256,7 @@ class GAME:
                         self.didLose = False
                         self.turnedLeft = False
                         self.initPlayerAndAscreen()
-                        self.firstLevel = True
+                        self.secondLevel = True
 
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
@@ -323,19 +322,19 @@ class GAME:
                     self.viewPlayer.drawPlayer(self.screen)
                     self.viewModelPlayer.playerMovement(self.didJump, self.turnedLeft)
 
-                    if self.player.playerRect.colliderect(self.spikesLongDownRect1) \
-                            or self.player.playerRect.colliderect(self.spikesLongUpRect1) \
-                            or self.player.playerRect.colliderect(self.spikesLongUpRect2) \
-                            or self.player.playerRect.colliderect(self.spikesLongDownRect2) \
-                            or self.player.playerRect.colliderect(self.spikesLongUpRect3) \
-                            or self.player.playerRect.colliderect(self.spikesLongDownRect3):
-                        self.deathSound.play()
-                        self.gameActive = False
-                        self.didLose = True
-                        self.isFirstCoinCollected = False
-                        self.isSecondCoinCollected = False
-                        self.isThirdCoinCollected = False
-                        self.resetCoinRects()
+                    # if self.player.playerRect.colliderect(self.spikesLongDownRect1) \
+                    #         or self.player.playerRect.colliderect(self.spikesLongUpRect1) \
+                    #         or self.player.playerRect.colliderect(self.spikesLongUpRect2) \
+                    #         or self.player.playerRect.colliderect(self.spikesLongDownRect2) \
+                    #         or self.player.playerRect.colliderect(self.spikesLongUpRect3) \
+                    #         or self.player.playerRect.colliderect(self.spikesLongDownRect3):
+                    #     self.deathSound.play()
+                    #     self.gameActive = False
+                    #     self.didLose = True
+                    #     self.isFirstCoinCollected = False
+                    #     self.isSecondCoinCollected = False
+                    #     self.isThirdCoinCollected = False
+                    #     self.resetCoinRects()
 
                     if self.player.playerRect.colliderect(self.bitcoinRect1):
                         self.isFirstCoinCollected = True

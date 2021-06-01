@@ -130,14 +130,19 @@ class VIEW_PLAYER:
         self.screen.blit(self.viewModelPlayer.getPlayerSpriteRun(),
                          (self.viewModelPlayer.getPlayerX(), self.viewModelPlayer.getPlayerY()))
 
-
-class GAME:
+class SingletonMeta(type):
 
     _instances = {}
-    def __call__(self, *args, **kwargs):
-        if self not in self._instances:
-            self._instances[self] = super(GAME, self).__call__(*args, **kwargs)
-        return self._instances
+
+    def __call__(cls, *args, **kwargs):
+
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class GAME(metaclass=SingletonMeta):
 
     # GAME INIT:
     pygame.init()
@@ -155,8 +160,8 @@ class GAME:
     didLose = False
     didJump = False
     turnedLeft = False
-    firstLevel = False
-    secondLevel = True
+    firstLevel = True
+    secondLevel = False
     isFirstCoinCollected = False
     isSecondCoinCollected = False
     isThirdCoinCollected = False
@@ -618,4 +623,5 @@ class GAME:
 
 # GAME START
 game = GAME()
+game1 = GAME()
 game.playGame()

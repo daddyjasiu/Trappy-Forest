@@ -133,6 +133,12 @@ class VIEW_PLAYER:
 
 class GAME:
 
+    _instances = {}
+    def __call__(self, *args, **kwargs):
+        if self not in self._instances:
+            self._instances[self] = super(GAME, self).__call__(*args, **kwargs)
+        return self._instances
+
     # GAME INIT:
     pygame.init()
     pygame.display.set_caption('Trappy Forest')

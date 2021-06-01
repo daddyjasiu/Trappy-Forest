@@ -1,4 +1,3 @@
-import time
 import pygame
 import sys
 from pygame import mixer
@@ -12,10 +11,50 @@ class MODEL_PLAYER:
         self.vectX = 70
         self.vectY = 300
         self.velocityY = -5
-        self.playerSpriteIdle1 = pygame.image.load('assets/heroes/3 Dude_Monster/idle/1.png').convert_alpha()
-        self.playerSpriteIdle1 = pygame.transform.scale(self.playerSpriteIdle1, (45, 69)).convert_alpha()
-        self.playerRect = self.playerSpriteIdle1.get_rect()
+        self.playerSprite = pygame.image.load('assets/heroes/3 Dude_Monster/idle/1.png').convert_alpha()
+        self.playerSprite = pygame.transform.scale(self.playerSprite, (45, 69)).convert_alpha()
+        self.playerRect = self.playerSprite.get_rect()
         self.playerRect.topleft = (70, 300)
+
+        self.playerRun1 = pygame.image.load('assets/heroes/3 Dude_Monster/run/1.png').convert_alpha()
+        self.playerRun1 = pygame.transform.scale(self.playerRun1, (52, 69)).convert_alpha()
+        self.playerRun2 = pygame.image.load('assets/heroes/3 Dude_Monster/run/2.png').convert_alpha()
+        self.playerRun2 = pygame.transform.scale(self.playerRun2, (52, 69)).convert_alpha()
+        self.playerRun3 = pygame.image.load('assets/heroes/3 Dude_Monster/run/3.png').convert_alpha()
+        self.playerRun3 = pygame.transform.scale(self.playerRun3, (52, 69)).convert_alpha()
+        self.playerRun4 = pygame.image.load('assets/heroes/3 Dude_Monster/run/4.png').convert_alpha()
+        self.playerRun4 = pygame.transform.scale(self.playerRun4, (52, 69)).convert_alpha()
+        self.playerRun5 = pygame.image.load('assets/heroes/3 Dude_Monster/run/5.png').convert_alpha()
+        self.playerRun5 = pygame.transform.scale(self.playerRun5, (52, 69)).convert_alpha()
+        self.playerRun6 = pygame.image.load('assets/heroes/3 Dude_Monster/run/6.png').convert_alpha()
+        self.playerRun6 = pygame.transform.scale(self.playerRun6, (52, 69)).convert_alpha()
+
+        self.spriteItr = 0
+        self.playerRun = [self.playerRun1, self.playerRun2, self.playerRun3, self.playerRun4, self.playerRun5, self.playerRun6]
+
+        self.playerRunFlipped1 = pygame.image.load('assets/heroes/3 Dude_Monster/run/1.png').convert_alpha()
+        self.playerRunFlipped1 = pygame.transform.scale(self.playerRun1, (52, 69)).convert_alpha()
+        self.playerRunFlipped1 = pygame.transform.flip(self.playerRunFlipped1, True, False)
+        self.playerRunFlipped2 = pygame.image.load('assets/heroes/3 Dude_Monster/run/2.png').convert_alpha()
+        self.playerRunFlipped2 = pygame.transform.scale(self.playerRun2, (52, 69)).convert_alpha()
+        self.playerRunFlipped2 = pygame.transform.flip(self.playerRunFlipped2, True, False)
+        self.playerRunFlipped3 = pygame.image.load('assets/heroes/3 Dude_Monster/run/3.png').convert_alpha()
+        self.playerRunFlipped3 = pygame.transform.scale(self.playerRun3, (52, 69)).convert_alpha()
+        self.playerRunFlipped3 = pygame.transform.flip(self.playerRunFlipped3, True, False)
+        self.playerRunFlipped4 = pygame.image.load('assets/heroes/3 Dude_Monster/run/4.png').convert_alpha()
+        self.playerRunFlipped4 = pygame.transform.scale(self.playerRun4, (52, 69)).convert_alpha()
+        self.playerRunFlipped4 = pygame.transform.flip(self.playerRunFlipped4, True, False)
+        self.playerRunFlipped5 = pygame.image.load('assets/heroes/3 Dude_Monster/run/5.png').convert_alpha()
+        self.playerRunFlipped5 = pygame.transform.scale(self.playerRun5, (52, 69)).convert_alpha()
+        self.playerRunFlipped5 = pygame.transform.flip(self.playerRunFlipped5, True, False)
+        self.playerRunFlipped6 = pygame.image.load('assets/heroes/3 Dude_Monster/run/6.png').convert_alpha()
+        self.playerRunFlipped6 = pygame.transform.scale(self.playerRun6, (52, 69)).convert_alpha()
+        self.playerRunFlipped6 = pygame.transform.flip(self.playerRunFlipped6, True, False)
+
+        self.playerRunFlipped = [self.playerRunFlipped1, self.playerRunFlipped2, self.playerRunFlipped3,
+                                 self.playerRunFlipped4, self.playerRunFlipped5, self.playerRunFlipped6]
+
+
 ############################################################
 # VIEW-MODEL
 ############################################################
@@ -24,8 +63,14 @@ class VIEW_MODEL_PLAYER:
     def __init__(self, playerData):
         self.player = playerData
 
-    def getPlayerSpriteIdle(self):
-        return self.player.playerSpriteIdle1
+    def getPlayerSpriteRun(self):
+
+        if self.player.spriteItr % 10 == 0 and not game.turnedLeft:
+            self.player.playerSprite = self.player.playerRun[int(self.player.spriteItr / 10)]
+        elif self.player.spriteItr % 10 == 0 and game.turnedLeft:
+            self.player.playerSprite = self.player.playerRunFlipped[int(self.player.spriteItr / 10)]
+
+        return self.player.playerSprite
 
     def getPlayerX(self):
         return self.player.vectX
@@ -33,25 +78,28 @@ class VIEW_MODEL_PLAYER:
     def getPlayerY(self):
         return self.player.vectY
 
-    def playerMovement(self, didJump, turnedLeft):
+    def playerMovement(self, didJump):
 
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_a] and self.player.vectX > 0:
             self.player.vectX -= 5
             self.player.playerRect.x -= 5
+            self.player.spriteItr += 1
 
-            if(turnedLeft == False):
-                self.player.playerSpriteIdle1 = pygame.transform.flip(self.player.playerSpriteIdle1, True, False)
+            if not game.turnedLeft:
                 game.turnedLeft = True
 
         if keys[pygame.K_d] and self.player.vectX < 1400 - 45:
-                    self.player.vectX += 5
-                    self.player.playerRect.x += 5
-                    if (turnedLeft == True):
-                            self.player.playerSpriteIdle1 = pygame.transform.flip(self.player.playerSpriteIdle1, True, False)
-                            game.turnedLeft = False
+            self.player.vectX += 5
+            self.player.playerRect.x += 5
+            self.player.spriteItr += 1
 
+            if game.turnedLeft:
+                game.turnedLeft = False
+
+        if(self.player.spriteItr >= 60):
+            self.player.spriteItr = 0
 
         if (didJump == True ):
             self.player.vectY -= self.player.velocityY
@@ -79,7 +127,7 @@ class VIEW_PLAYER:
 
     def drawPlayer(self, sc):
         self.screen = sc
-        self.screen.blit(self.viewModelPlayer.getPlayerSpriteIdle(),
+        self.screen.blit(self.viewModelPlayer.getPlayerSpriteRun(),
                          (self.viewModelPlayer.getPlayerX(), self.viewModelPlayer.getPlayerY()))
 
 
@@ -101,12 +149,13 @@ class GAME:
     didLose = False
     didJump = False
     turnedLeft = False
-    firstLevel = True
-    secondLevel = False
+    firstLevel = False
+    secondLevel = True
     isFirstCoinCollected = False
     isSecondCoinCollected = False
     isThirdCoinCollected = False
     didWin = False
+    coinItr = 0
     coinCounter = 0
     timeSurvived = 0
 
@@ -130,12 +179,26 @@ class GAME:
     skyBackground = pygame.image.load('assets/enviroment/sky_backgroud.png').convert()
     level1Background = pygame.image.load('assets/enviroment/level1_background.png').convert()
 
-    bitcoin = pygame.image.load('assets/enviroment/bitcoin.png').convert_alpha()
-    bitcoin = pygame.transform.scale(bitcoin, (45, 69)).convert_alpha()
+    coin1 = pygame.image.load('assets/coins_anim/1.png').convert_alpha()
+    coin1 = pygame.transform.scale(coin1, (21, 69))
+    coin2 = pygame.image.load('assets/coins_anim/2.png').convert_alpha()
+    coin2 = pygame.transform.scale(coin2, (39, 69))
+    coin3 = pygame.image.load('assets/coins_anim/3.png').convert_alpha()
+    coin3 = pygame.transform.scale(coin3, (60, 69))
+    coin4 = pygame.image.load('assets/coins_anim/4.png').convert_alpha()
+    coin4 = pygame.transform.scale(coin4, (69, 69))
+    coin5 = pygame.image.load('assets/coins_anim/5.png').convert_alpha()
+    coin5 = pygame.transform.scale(coin5, (60, 69))
+    coin6 = pygame.image.load('assets/coins_anim/6.png').convert_alpha()
+    coin6 = pygame.transform.scale(coin6, (39, 69))
+    coin7 = pygame.image.load('assets/coins_anim/7.png').convert_alpha()
+    coin7 = pygame.transform.scale(coin7, (21, 69))
 
-    bitcoinRect1 = bitcoin.get_rect()
-    bitcoinRect2 = bitcoin.get_rect()
-    bitcoinRect3 = bitcoin.get_rect()
+    coin = [coin1, coin2, coin3, coin4, coin5, coin6, coin7]
+
+    coinRect1 = coin4.get_rect()
+    coinRect2 = coin4.get_rect()
+    coinRect3 = coin4.get_rect()
 
     spikesSmallUp = pygame.image.load('assets/enviroment/spikes.png').convert_alpha()
     spikesSmallUp = pygame.transform.scale(spikesSmallUp, (100, 96)).convert_alpha()
@@ -185,9 +248,9 @@ class GAME:
         self.viewPlayer = VIEW_PLAYER(self.viewModelPlayer)
 
     def resetCoinRects(self):
-        self.bitcoinRect1.topleft = (0, 0)
-        self.bitcoinRect2.topleft = (0, 0)
-        self.bitcoinRect3.topleft = (0, 0)
+        self.coinRect1.topleft = (0, 0)
+        self.coinRect2.topleft = (0, 0)
+        self.coinRect3.topleft = (0, 0)
 
     def resetSpikesRects(self):
         self.spikesLongUpRect1.topleft = (0, 0)
@@ -249,16 +312,55 @@ class GAME:
         self.screen.blit(self.level1Background, (0, 0))
 
         if not isThirdCoinCollected:
-            self.screen.blit(self.bitcoin, (995, 330))
-            self.bitcoinRect3.topleft = (995, 330)
+
+            if int(self.coinItr / 10) == 0:
+                self.screen.blit(self.coin[0], (1010, 330))
+            elif int(self.coinItr / 10) == 1:
+                self.screen.blit(self.coin[1], (1004, 330))
+            elif int(self.coinItr / 10) == 2:
+                self.screen.blit(self.coin[2], (996, 330))
+            elif int(self.coinItr / 10) == 3:
+                self.screen.blit(self.coin[3], (990, 330))
+            elif int(self.coinItr / 10) == 4:
+                self.screen.blit(self.coin[4], (996, 330))
+            elif int(self.coinItr / 10) == 5:
+                self.screen.blit(self.coin[5], (1004, 330))
+
+            self.coinRect3.topleft = (990, 330)
 
         if isThirdCoinCollected and not isFirstCoinCollected:
-            self.screen.blit(self.bitcoin, (375, 330))
-            self.bitcoinRect1.topleft = (375, 330)
+
+            if int(self.coinItr / 10) == 0:
+                self.screen.blit(self.coin[0], (395, 330))
+            elif int(self.coinItr / 10) == 1:
+                self.screen.blit(self.coin[1], (389, 330))
+            elif int(self.coinItr / 10) == 2:
+                self.screen.blit(self.coin[2], (381, 330))
+            elif int(self.coinItr / 10) == 3:
+                self.screen.blit(self.coin[3], (375, 330))
+            elif int(self.coinItr / 10) == 4:
+                self.screen.blit(self.coin[4], (381, 330))
+            elif int(self.coinItr / 10) == 5:
+                self.screen.blit(self.coin[5], (389, 330))
+
+            self.coinRect1.topleft = (375, 330)
 
         if isFirstCoinCollected and not isSecondCoinCollected:
-            self.screen.blit(self.bitcoin, (695, 330))
-            self.bitcoinRect2.topleft = (695, 330)
+
+            if int(self.coinItr / 10) == 0:
+                self.screen.blit(self.coin[0], (715, 330))
+            elif int(self.coinItr / 10) == 1:
+                self.screen.blit(self.coin[1], (709, 330))
+            elif int(self.coinItr / 10) == 2:
+                self.screen.blit(self.coin[2], (701, 330))
+            elif int(self.coinItr / 10) == 3:
+                self.screen.blit(self.coin[3], (695, 330))
+            elif int(self.coinItr / 10) == 4:
+                self.screen.blit(self.coin[4], (701, 330))
+            elif int(self.coinItr / 10) == 5:
+                self.screen.blit(self.coin[5], (709, 330))
+
+            self.coinRect2.topleft = (695, 330)
 
         self.screen.blit(self.spikesLongUp, (350, 580))
         self.screen.blit(self.spikesLongDown, (350, -30))
@@ -269,26 +371,75 @@ class GAME:
         self.screen.blit(self.spikesLongUp, (970, 500))
         self.screen.blit(self.spikesLongDown, (970, -20))
 
+        if self.coinItr >= 59:
+            self.coinItr = 0
+        else:
+            self.coinItr += 1
+
     def drawSecondLevel(self, isFirstCoinCollected, isSecondCoinCollected, isThirdCoinCollected):
         self.screen.blit(self.level1Background, (0, 0))
 
         if not isThirdCoinCollected:
-            self.screen.blit(self.bitcoin, (1100+90, 330))
-            self.bitcoinRect3.topleft = (1100+90, 330)
+
+            if int(self.coinItr / 10) == 0:
+                self.screen.blit(self.coin[0], (1180, 330))
+            elif int(self.coinItr / 10) == 1:
+                self.screen.blit(self.coin[1], (1174, 330))
+            elif int(self.coinItr / 10) == 2:
+                self.screen.blit(self.coin[2], (1166, 330))
+            elif int(self.coinItr / 10) == 3:
+                self.screen.blit(self.coin[3], (1160, 330))
+            elif int(self.coinItr / 10) == 4:
+                self.screen.blit(self.coin[4], (1166, 330))
+            elif int(self.coinItr / 10) == 5:
+                self.screen.blit(self.coin[5], (1174, 330))
+
+            self.coinRect3.topleft = (1160, 330)
 
         if isThirdCoinCollected and not isFirstCoinCollected:
-            self.screen.blit(self.bitcoin, (300+90, 330))
-            self.bitcoinRect1.topleft = (300+90, 330)
+
+            if int(self.coinItr / 10) == 0:
+                self.screen.blit(self.coin[0], (370, 330))
+            elif int(self.coinItr / 10) == 1:
+                self.screen.blit(self.coin[1], (364, 330))
+            elif int(self.coinItr / 10) == 2:
+                self.screen.blit(self.coin[2], (356, 330))
+            elif int(self.coinItr / 10) == 3:
+                self.screen.blit(self.coin[3], (350, 330))
+            elif int(self.coinItr / 10) == 4:
+                self.screen.blit(self.coin[4], (356, 330))
+            elif int(self.coinItr / 10) == 5:
+                self.screen.blit(self.coin[5], (364, 330))
+
+            self.coinRect1.topleft = (350, 330)
 
         if isFirstCoinCollected and not isSecondCoinCollected:
-            self.screen.blit(self.bitcoin, (700+90, 330))
-            self.bitcoinRect2.topleft = (700+90, 330)
+
+            if int(self.coinItr / 10) == 0:
+                self.screen.blit(self.coin[0], (770, 330))
+            elif int(self.coinItr / 10) == 1:
+                self.screen.blit(self.coin[1], (764, 330))
+            elif int(self.coinItr / 10) == 2:
+                self.screen.blit(self.coin[2], (756, 330))
+            elif int(self.coinItr / 10) == 3:
+                self.screen.blit(self.coin[3], (750, 330))
+            elif int(self.coinItr / 10) == 4:
+                self.screen.blit(self.coin[4], (756, 330))
+            elif int(self.coinItr / 10) == 5:
+                self.screen.blit(self.coin[5], (764, 330))
+
+            self.coinRect2.topleft = (750, 330)
 
         self.screen.blit(self.boulder, (300, self.boulderRect1.y))
         self.screen.blit(self.boulder, (700, self.boulderRect2.y))
         self.screen.blit(self.boulder, (1100, self.boulderRect3.y))
         self.screen.blit(self.arrowRight, (self.arrowRightRect.x, 400))
         self.screen.blit(self.arrowLeft, (self.arrowLeftRect.x, 600))
+
+        if self.coinItr >= 59:
+            self.coinItr = 0
+        else:
+            self.coinItr += 1
 
     def drawCoinScore(self, scoreCoinsText):
         self.screen.blit(scoreCoinsText, (1085, 10))
@@ -356,7 +507,8 @@ class GAME:
                     self.drawCoinScore(scoreCoinsText)
 
                     self.viewPlayer.drawPlayer(self.screen)
-                    self.viewModelPlayer.playerMovement(self.didJump, self.turnedLeft)
+                    self.viewModelPlayer.playerMovement(self.didJump)
+
                     if self.player.playerRect.colliderect(self.spikesLongDownRect1)\
                             or self.player.playerRect.colliderect(self.spikesLongUpRect1)\
                             or self.player.playerRect.colliderect(self.spikesLongUpRect2)\
@@ -372,22 +524,22 @@ class GAME:
                         self.resetCoinRects()
                         self.coinCounter = 0
 
-                    if self.player.playerRect.colliderect(self.bitcoinRect1):
+                    if self.player.playerRect.colliderect(self.coinRect1):
                         self.isFirstCoinCollected = True
                         self.coinSound.play()
-                        self.bitcoinRect1.topleft = (0, 0)
+                        self.coinRect1.topleft = (0, 0)
                         self.coinCounter += 1
 
-                    if self.player.playerRect.colliderect(self.bitcoinRect2):
+                    if self.player.playerRect.colliderect(self.coinRect2):
                         self.isSecondCoinCollected = True
                         self.coinSound.play()
-                        self.bitcoinRect2.topleft = (0, 0)
+                        self.coinRect2.topleft = (0, 0)
                         self.coinCounter += 1
 
-                    if self.player.playerRect.colliderect(self.bitcoinRect3):
+                    if self.player.playerRect.colliderect(self.coinRect3):
                         self.isThirdCoinCollected = True
                         self.coinSound.play()
-                        self.bitcoinRect3.topleft = (0, 0)
+                        self.coinRect3.topleft = (0, 0)
                         self.coinCounter += 1
 
                     if self.isFirstCoinCollected and self.isSecondCoinCollected and self.isThirdCoinCollected:
@@ -408,7 +560,7 @@ class GAME:
                     self.bouldersFall()
                     self.arrowsFly()
                     self.viewPlayer.drawPlayer(self.screen)
-                    self.viewModelPlayer.playerMovement(self.didJump, self.turnedLeft)
+                    self.viewModelPlayer.playerMovement(self.didJump)
 
                     if self.player.playerRect.colliderect(self.boulderRect1)\
                         or self.player.playerRect.colliderect(self.boulderRect2)\
@@ -433,22 +585,22 @@ class GAME:
                         else:
                             self.timeSurvived = 0
 
-                    if self.player.playerRect.colliderect(self.bitcoinRect1):
+                    if self.player.playerRect.colliderect(self.coinRect1):
                         self.isFirstCoinCollected = True
                         self.coinSound.play()
-                        self.bitcoinRect1.topleft = (0, 0)
+                        self.coinRect1.topleft = (0, 0)
                         self.coinCounter += 1
 
-                    if self.player.playerRect.colliderect(self.bitcoinRect2):
+                    if self.player.playerRect.colliderect(self.coinRect2):
                         self.isSecondCoinCollected = True
                         self.coinSound.play()
-                        self.bitcoinRect2.topleft = (0, 0)
+                        self.coinRect2.topleft = (0, 0)
                         self.coinCounter += 1
 
-                    if self.player.playerRect.colliderect(self.bitcoinRect3):
+                    if self.player.playerRect.colliderect(self.coinRect3):
                         self.isThirdCoinCollected = True
                         self.coinSound.play()
-                        self.bitcoinRect3.topleft = (0, 0)
+                        self.coinRect3.topleft = (0, 0)
                         self.coinCounter += 1
 
                     if self.isFirstCoinCollected and self.isSecondCoinCollected and self.isThirdCoinCollected:

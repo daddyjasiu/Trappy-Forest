@@ -472,7 +472,6 @@ class GAME(metaclass=SingletonMeta):
     ############################################################
 
     def playGame(self):
-
         while True:
             self.clock.tick(120)
             for event in pygame.event.get():
